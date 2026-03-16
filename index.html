@@ -329,9 +329,12 @@ async function sheetsDelete(id) {
 
 async function init() {
   document.getElementById('sess-date').value = new Date().toISOString().split('T')[0];
-  const remote = await sheetsGet();
-  if (remote !== null) { allData = remote; saveLocal(allData); }
-  else { allData = loadLocal(); showToast('Sheets inaccessible — cache local utilisé', 'info'); }
+  // Charge le cache local immédiatement pour que l'UI soit réactive
+  allData = loadLocal();
+  // Sync en arrière-plan sans bloquer
+  sheetsGet().then(remote => {
+    if (remote !== null) { allData = remote; saveLocal(allData); }
+  }).catch(() => {});
 }
 
 async function testConn() {
@@ -490,9 +493,10 @@ function renderHist() {
   data = [...data].reverse();
   if (!data.length) { list.innerHTML='<div class="empty">Aucune séance enregistrée</div>'; return; }
   list.innerHTML = data.map(s => {
-    const d = new Date(s.date);
-    if (isNaN(d)) { var parts = String(s.date).split('/'); var d = parts.length===3 ? new Date(parts[2],parts[1]-1,parts[0]) : new Date(String(s.date)); }
-    const dateStr = isNaN(d) ? s.date : d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+    const rawDate = s.date;
+    let d = new Date(typeof rawDate === 'string' ? rawDate + 'T12:00:00' : rawDate);
+    if (isNaN(d)) { const parts = String(rawDate).split('/'); d = parts.length===3 ? new Date(parts[2],parts[1]-1,parts[0]) : new Date(String(rawDate)); }
+    const dateStr = isNaN(d) ? String(rawDate) : d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
     const prC = Object.values(s.ex).filter(e=>e.isPR).length;
     const prB = prC ? `<span style="font-size:10px;color:var(--pr);margin-left:5px">🏆 ×${prC}</span>` : '';
     const volStr = s.totalVol ? `${Math.round(s.totalVol).toLocaleString('fr-FR')} kg vol.` : '';
