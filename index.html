@@ -70,6 +70,7 @@ input[type=number] { width: 100%; background: var(--card2); border: 1px solid va
 input[type=number]:focus { border-color: #444; }
 input[type=number].filled { border-color: #333; background: #1a1a1a; }
 .prev-hint { font-size: 10px; color: var(--muted2); padding: 2px 16px 4px; font-style: italic; }
+.prev-note { font-size: 10px; color: var(--muted2); padding: 2px 16px 6px; font-style: italic; }
 .ex-note-wrap { padding: 6px 16px 12px; }
 .ex-note { width: 100%; background: var(--card2); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 8px 10px; outline: none; resize: none; min-height: 34px; transition: border-color .15s, color .15s; }
 .ex-note:focus { border-color: #444; color: var(--text); }
@@ -259,9 +260,9 @@ select { width: 100%; background: var(--card); border: 1px solid var(--border); 
 const PROG = {
   push: { label:'Push', exercises:[
     {id:'dcp',name:'Développé couché machine',sets:4,rt:[6,6,10,10],rest:'2 min'},
-    {id:'chestpress',name:'Chest Press',sets:3,rt:[8,8,8],rest:'2 min'},
-    {id:'dips',name:'Dips Machine',sets:4,rt:[10,10,10,10],rest:'2 min'},
-    {id:'devmil',name:'Développé militaire',sets:4,rt:[8,8,8,8],rest:'1 min 30'},
+    {id:'chestpress',name:'Développé incliné Smith Machine',sets:3,rt:[8,8,8],rest:'2 min'},
+    {id:'devmil',name:'Développé militaire',sets:4,rt:[8,8,8,8],rest:'2 min'},
+    {id:'dips',name:'Dips Machine',sets:4,rt:[10,10,10,10],rest:'1 min 30'},
     {id:'skull',name:'Skullcrusher',sets:3,rt:[8,8,8],rest:'1 min 30'},
   ]},
   pull: { label:'Pull', exercises:[
@@ -389,13 +390,16 @@ function buildExos(t) {
     let sHTML = '';
     for (let i=0; i<ex.sets; i++) {
       const pw = prevEx ? (prevEx.s[i]?.w||'') : '';
+      const pr = prevEx ? (prevEx.s[i]?.r||'') : '';
+      const rPlaceholder = pr ? pr : (ex.rt[i]||ex.rt[0]);
+      const wPlaceholder = pw ? pw : '—';
       sHTML += `<div class="serie-row">
         <div class="snum">S${i+1}</div>
-        <div class="inp-wrap"><input type="number" id="${ex.id}_r${i}" placeholder="${ex.rt[i]||ex.rt[0]}" min="0" max="99" inputmode="numeric" oninput="chkPR('${ex.id}')" onblur="mFill(this)"><span class="unit">reps</span></div>
-        <div class="inp-wrap"><input type="number" id="${ex.id}_w${i}" placeholder="${pw||'—'}" min="0" max="999" step="0.5" inputmode="decimal" oninput="chkPR('${ex.id}')" onblur="mFill(this)"><span class="unit">kg</span></div>
+        <div class="inp-wrap"><input type="number" id="${ex.id}_r${i}" placeholder="${rPlaceholder}" min="0" max="99" inputmode="numeric" oninput="chkPR('${ex.id}');autoSave()" onblur="mFill(this)"><span class="unit">reps</span></div>
+        <div class="inp-wrap"><input type="number" id="${ex.id}_w${i}" placeholder="${wPlaceholder}" min="0" max="999" step="0.5" inputmode="decimal" oninput="chkPR('${ex.id}');autoSave()" onblur="mFill(this)"><span class="unit">kg</span></div>
       </div>`;
     }
-    const prevHint = prevEx ? `<div class="prev-hint">↩ ${prevEx.s.map(s=>`${s.w?s.w+'kg':'—'}×${s.r||'—'}`).join(' / ')}</div>` : '';
+    const prevNote = prevEx?.note ? `<div class="prev-note">↩ ${prevEx.note}</div>` : '';
     const card = document.createElement('div');
     card.className = 'ex-card'; card.id = 'card-'+ex.id;
     card.innerHTML = `
@@ -404,10 +408,12 @@ function buildExos(t) {
         <div class="pr-badge">🏆 PR</div>
       </div>
       <div class="series-wrap">${sHTML}</div>
-      ${prevHint}
-      <div class="ex-note-wrap"><textarea class="ex-note" id="note_${ex.id}" placeholder="Note (sensation, difficulté...)"></textarea></div>`;
+      ${prevNote}
+      <div class="ex-note-wrap"><textarea class="ex-note" id="note_${ex.id}" placeholder="Note (sensation, difficulté...)" oninput="autoSave()"></textarea></div>`;
     c.appendChild(card);
   });
+  // Restore autosave if exists
+  restoreAutoSave(t);
 }
 
 function mFill(el) { el.value ? el.classList.add('filled') : el.classList.remove('filled'); }
@@ -450,6 +456,7 @@ async function saveSess() {
 
   allData.push(entry);
   saveLocal(allData);
+  localStorage.removeItem(AS_KEY);
   showToast('✅ Séance enregistrée !', 'ok');
 
   setTimeout(() => {
@@ -572,6 +579,44 @@ function showToast(msg, type='') {
   const t=document.getElementById('toast');
   t.textContent=msg; t.className='toast '+type+' show';
   setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+/* ══════════ AUTOSAVE ══════════ */
+const AS_KEY = 'ppl_autosave';
+
+function autoSave() {
+  if (!curSess) return;
+  const draft = { type: curSess, date: document.getElementById('sess-date').value, note: document.getElementById('sess-note').value, exos: {} };
+  PROG[curSess].exercises.forEach(ex => {
+    const series = [];
+    for (let i=0; i<ex.sets; i++) {
+      series.push({ r: document.getElementById(ex.id+'_r'+i)?.value||'', w: document.getElementById(ex.id+'_w'+i)?.value||'' });
+    }
+    draft.exos[ex.id] = { series, note: document.getElementById('note_'+ex.id)?.value||'' };
+  });
+  localStorage.setItem(AS_KEY, JSON.stringify(draft));
+}
+
+function restoreAutoSave(t) {
+  try {
+    const draft = JSON.parse(localStorage.getItem(AS_KEY));
+    if (!draft || draft.type !== t) return;
+    if (draft.date) document.getElementById('sess-date').value = draft.date;
+    if (draft.note) document.getElementById('sess-note').value = draft.note;
+    PROG[t].exercises.forEach(ex => {
+      const d = draft.exos?.[ex.id]; if (!d) return;
+      for (let i=0; i<ex.sets; i++) {
+        const ri = document.getElementById(ex.id+'_r'+i);
+        const wi = document.getElementById(ex.id+'_w'+i);
+        if (ri && d.series[i]?.r) { ri.value = d.series[i].r; ri.classList.add('filled'); }
+        if (wi && d.series[i]?.w) { wi.value = d.series[i].w; wi.classList.add('filled'); }
+      }
+      const ni = document.getElementById('note_'+ex.id);
+      if (ni && d.note) ni.value = d.note;
+    });
+    if (Object.values(draft.exos).some(e => e.series.some(s => s.r||s.w)))
+      showToast('Brouillon restauré ✓', 'ok');
+  } catch {}
 }
 
 init();
