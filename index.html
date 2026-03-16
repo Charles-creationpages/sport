@@ -282,7 +282,7 @@ const PROG = {
 };
 
 const LSK = 'ppl_sessions_v3';
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyihn91Ny0IbB5iDb_t2igBCkfEz55LvORtga8XYxiv5MJjA232QtY5RLVyHlv5j_Rh/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyt_6gPRAP2SDzM9aHlgCOpWLYOkHgmn82U5-fAlgDWh-EKYIvlIxTqf0orDU7XRyiF/exec';
 let allData = [];
 let curSess = null;
 let hFilter = 'all';
@@ -490,8 +490,9 @@ function renderHist() {
   data = [...data].reverse();
   if (!data.length) { list.innerHTML='<div class="empty">Aucune séance enregistrée</div>'; return; }
   list.innerHTML = data.map(s => {
-    const d = new Date(s.date+'T12:00:00');
-    const dateStr = d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+    const d = new Date(s.date);
+    if (isNaN(d)) { var parts = String(s.date).split('/'); var d = parts.length===3 ? new Date(parts[2],parts[1]-1,parts[0]) : new Date(String(s.date)); }
+    const dateStr = isNaN(d) ? s.date : d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
     const prC = Object.values(s.ex).filter(e=>e.isPR).length;
     const prB = prC ? `<span style="font-size:10px;color:var(--pr);margin-left:5px">🏆 ×${prC}</span>` : '';
     const volStr = s.totalVol ? `${Math.round(s.totalVol).toLocaleString('fr-FR')} kg vol.` : '';
@@ -541,7 +542,11 @@ function renderStats() {
   const vols=sessions.map(s=>s.ex[exId].vol||0);
   const maxWts=sessions.map(s=>Math.max(...s.ex[exId].s.map(sr=>sr.w||0)));
   const col={push:'#e85d3a',pull:'#3a8fe8',legs:'#3ae87a'}[t];
-  const labels=sessions.map(s=>new Date(s.date+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short'}));
+  const labels=sessions.map(s=>{
+    const d = new Date(s.date); 
+    const dd = isNaN(d) ? new Date(String(s.date)) : d;
+    return isNaN(dd) ? s.date : dd.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  });
   sc.innerHTML=`
     <div class="stat-cards">
       <div class="stat-card"><div class="stat-val" style="color:${col}">${sessions.length}</div><div class="stat-lbl">Séances</div></div>
