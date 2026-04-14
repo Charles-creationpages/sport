@@ -32,14 +32,6 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(14,14,14,0.96)
 .view { display: none; max-width: 780px; margin: 0 auto; padding: 24px 16px 100px; }
 .view.active { display: block; }
 
-.config-banner { background: rgba(245,197,66,.08); border: 1px solid rgba(245,197,66,.3); border-radius: 12px; padding: 14px 16px; margin-bottom: 20px; }
-.config-banner p { font-size: 13px; color: var(--rest); margin-bottom: 6px; font-weight: 500; }
-.config-banner small { font-size: 11px; color: var(--muted); display: block; margin-bottom: 10px; }
-.config-input-row { display: flex; gap: 8px; }
-.config-input { flex: 1; background: var(--card2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 9px 12px; outline: none; }
-.config-input:focus { border-color: var(--rest); }
-.btn-config { background: var(--rest); border: none; border-radius: 8px; color: #111; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 700; padding: 9px 14px; cursor: pointer; white-space: nowrap; }
-
 .sess-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 24px; }
 .sess-btn { background: var(--card); border: 2px solid var(--border); border-radius: 14px; padding: 18px 8px; cursor: pointer; text-align: center; transition: all .18s; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .sess-btn:hover { border-color: var(--muted2); transform: translateY(-2px); }
@@ -63,6 +55,14 @@ header { position: sticky; top: 0; z-index: 100; background: rgba(14,14,14,0.96)
 .ex-card.has-pr .pr-badge { display: block; }
 .series-wrap { padding: 0 16px 4px; display: flex; flex-direction: column; gap: 8px; }
 .serie-row { display: grid; grid-template-columns: 24px 1fr 1fr; gap: 7px; align-items: center; }
+.serie-row-3 { display: grid; grid-template-columns: 24px 1fr 1fr 1fr; gap: 5px; align-items: center; }
+.serie-row-4 { display: grid; grid-template-columns: 24px 1fr 1fr 1fr 1fr; gap: 4px; align-items: center; }
+.col-lbl { font-size: 9px; color: var(--muted2); text-align: center; letter-spacing: .04em; text-transform: uppercase; padding: 0 2px; }
+.col-lbl-row { display: grid; gap: 5px; align-items: center; padding: 0 16px 2px; }
+.col-lbl-row-3 { grid-template-columns: 24px 1fr 1fr 1fr; }
+.col-lbl-row-4 { grid-template-columns: 24px 1fr 1fr 1fr 1fr; }
+.superset-sep { height: 1px; background: var(--border); margin: 6px 16px 8px; }
+.superset-lbl { font-size: 10px; color: var(--muted2); padding: 0 16px 4px; text-transform: uppercase; letter-spacing: .08em; }
 .snum { font-family: 'Bebas Neue', sans-serif; font-size: 15px; color: var(--muted2); text-align: center; }
 .inp-wrap { position: relative; }
 .inp-wrap .unit { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--muted); pointer-events: none; }
@@ -146,10 +146,6 @@ select { width: 100%; background: var(--card); border: 1px solid var(--border); 
 .btn-action:hover { border-color: var(--muted2); }
 .btn-action.danger { color: var(--pr); border-color: rgba(255,77,109,.3); }
 .btn-action.danger:hover { background: rgba(255,77,109,.08); border-color: var(--pr); }
-.url-display { font-size: 10px; color: var(--muted2); word-break: break-all; margin-top: 4px; font-family: monospace; }
-.url-row { display: flex; gap: 8px; width: 100%; }
-.url-input { flex: 1; background: var(--card2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 9px 12px; outline: none; }
-.url-input:focus { border-color: var(--muted2); }
 </style>
 </head>
 <body>
@@ -173,7 +169,6 @@ select { width: 100%; background: var(--card); border: 1px solid var(--border); 
 
 <!-- LOG -->
 <div class="view active" id="v-log">
-
   <div class="sess-grid">
     <button class="sess-btn" id="sb-push" onclick="selSess('push')">
       <div class="sess-label" style="color:var(--push)">Push</div>
@@ -260,16 +255,16 @@ select { width: 100%; background: var(--card); border: 1px solid var(--border); 
 const PROG = {
   push: { label:'Push', exercises:[
     {id:'dcp',name:'Développé couché machine',sets:4,rt:[6,6,10,10],rest:'2 min'},
-    {id:'chestpress',name:'Développé incliné Smith Machine',sets:3,rt:[8,8,8],rest:'2 min'},
     {id:'devmil',name:'Développé militaire',sets:4,rt:[8,8,8,8],rest:'2 min'},
+    {id:'chestpress',name:'Développé incliné Smith Machine',sets:3,rt:[8,8,8],rest:'2 min'},
     {id:'dips',name:'Dips Machine',sets:4,rt:[10,10,10,10],rest:'1 min 30'},
-    {id:'skull',name:'Skullcrusher',sets:3,rt:[8,8,8],rest:'1 min 30'},
+    {id:'skull',name:'Extension triceps poulie',sets:3,rt:[8,8,8],rest:'1 min 30'},
   ]},
   pull: { label:'Pull', exercises:[
     {id:'tiragev',name:'Tirage vertical poulie',sets:4,rt:[8,8,8,8],rest:'2 min'},
+    {id:'tirageh',name:'Tirage horizontal prise large',sets:4,rt:[10,10,10,10],rest:'2 min',bilateral:true},
     {id:'pulldown',name:'Pulldown machine',sets:3,rt:[10,10,10],rest:'2 min'},
-    {id:'tirageh',name:'Tirage horizontal prise large',sets:4,rt:[10,10,10,10],rest:'2 min'},
-    {id:'elevois',name:'Élévation lat. + Oiseau haltère',sets:4,rt:[10,10,10,10],rest:'1 min 30',ss:true},
+    {id:'elevois',name:'Élévation lat. + Machine arrière épaules',sets:4,rt:[10,10,10,10],rest:'1 min 30',supercombo:true},
     {id:'curl',name:'Curl machine',sets:3,rt:[8,8,8],rest:'1 min 30'},
   ]},
   legs: { label:'Legs', exercises:[
@@ -329,16 +324,13 @@ async function sheetsDelete(id) {
 
 async function init() {
   document.getElementById('sess-date').value = new Date().toISOString().split('T')[0];
-  // Charge le cache local immédiatement pour que l'UI soit réactive
   allData = loadLocal();
-  // Sync en arrière-plan sans bloquer
   sheetsGet().then(remote => {
     if (remote !== null) { allData = remote; saveLocal(allData); }
   }).catch(() => {});
 }
 
 async function testConn() {
-  if (!getUrl()) { showToast('Aucune URL configurée', 'err'); return; }
   showToast('Test en cours...', 'info');
   const r = await sheetsGet();
   r !== null ? showToast(`✅ OK — ${r.length} séance(s) dans Sheets`, 'ok') : showToast('❌ Connexion échouée', 'err');
@@ -388,34 +380,79 @@ function buildExos(t) {
     const prev = [...allData].reverse().find(s => s.type===t && s.ex?.[ex.id]);
     const prevEx = prev ? prev.ex[ex.id] : null;
     const rLbl = new Set(ex.rt).size > 1 ? ex.rt.join(' · ') : ex.rt[0]+' reps';
-    const tag = ex.ss ? ' <span style="font-size:10px;color:var(--rest)">[SUPERSET +10]</span>'
-              : ex.bi ? ' <span style="font-size:10px;color:var(--rest)">[PAR JAMBE]</span>' : '';
-    let sHTML = '';
-    for (let i=0; i<ex.sets; i++) {
-      const pw = prevEx ? (prevEx.s[i]?.w||'') : '';
-      const pr = prevEx ? (prevEx.s[i]?.r||'') : '';
-      const rPlaceholder = pr ? pr : (ex.rt[i]||ex.rt[0]);
-      const wPlaceholder = pw ? pw : '—';
-      sHTML += `<div class="serie-row">
-        <div class="snum">S${i+1}</div>
-        <div class="inp-wrap"><input type="number" id="${ex.id}_r${i}" placeholder="${rPlaceholder}" min="0" max="99" inputmode="numeric" oninput="chkPR('${ex.id}');autoSave()" onblur="mFill(this)"><span class="unit">reps</span></div>
-        <div class="inp-wrap"><input type="number" id="${ex.id}_w${i}" placeholder="${wPlaceholder}" min="0" max="999" step="0.5" inputmode="decimal" oninput="chkPR('${ex.id}');autoSave()" onblur="mFill(this)"><span class="unit">kg</span></div>
-      </div>`;
-    }
-    const prevNote = prevEx?.note ? `<div class="prev-note">↩ ${prevEx.note}</div>` : '';
     const card = document.createElement('div');
     card.className = 'ex-card'; card.id = 'card-'+ex.id;
+
+    let headerExtra = '';
+    let seriesHTML = '';
+
+    // ── CAS 1 : bilatéral (tirage horizontal) → reps / kg gauche / kg droit
+    if (ex.bilateral) {
+      headerExtra = `<div class="col-lbl-row col-lbl-row-3" style="margin-top:6px">
+        <div></div><div class="col-lbl">Reps</div><div class="col-lbl">Gauche kg</div><div class="col-lbl">Droit kg</div>
+      </div>`;
+      for (let i=0; i<ex.sets; i++) {
+        const pr = prevEx ? (prevEx.s[i]?.r||'') : '';
+        const pwL = prevEx ? (prevEx.s[i]?.wL||'') : '';
+        const pwR = prevEx ? (prevEx.s[i]?.wR||'') : '';
+        seriesHTML += `<div class="serie-row-3">
+          <div class="snum">S${i+1}</div>
+          <div class="inp-wrap"><input type="number" id="${ex.id}_r${i}" placeholder="${pr||ex.rt[i]||ex.rt[0]}" min="0" max="99" inputmode="numeric" oninput="chkPR('${ex.id}');autoSave()" onblur="mFill(this)"><span class="unit">reps</span></div>
+          <div class="inp-wrap"><input type="number" id="${ex.id}_wL${i}" placeholder="${pwL||'—'}" min="0" max="999" step="0.5" inputmode="decimal" oninput="chkPR('${ex.id}');autoSave()" onblur="mFill(this)"><span class="unit">kg</span></div>
+          <div class="inp-wrap"><input type="number" id="${ex.id}_wR${i}" placeholder="${pwR||'—'}" min="0" max="999" step="0.5" inputmode="decimal" oninput="chkPR('${ex.id}');autoSave()" onblur="mFill(this)"><span class="unit">kg</span></div>
+        </div>`;
+      }
+    }
+    // ── CAS 2 : supercombo (élev lat + machine arrière) → 4 colonnes
+    else if (ex.supercombo) {
+      headerExtra = `<div class="col-lbl-row col-lbl-row-4" style="margin-top:6px">
+        <div></div>
+        <div class="col-lbl">Élév reps</div><div class="col-lbl">Élév kg</div>
+        <div class="col-lbl">Arr. reps</div><div class="col-lbl">Arr. kg</div>
+      </div>`;
+      for (let i=0; i<ex.sets; i++) {
+        const prA = prevEx ? (prevEx.s[i]?.rA||'') : '';
+        const pwA = prevEx ? (prevEx.s[i]?.wA||'') : '';
+        const prB = prevEx ? (prevEx.s[i]?.rB||'') : '';
+        const pwB = prevEx ? (prevEx.s[i]?.wB||'') : '';
+        seriesHTML += `<div class="serie-row-4">
+          <div class="snum">S${i+1}</div>
+          <div class="inp-wrap"><input type="number" id="${ex.id}_rA${i}" placeholder="${prA||ex.rt[i]||ex.rt[0]}" min="0" max="99" inputmode="numeric" oninput="chkPR('${ex.id}');autoSave()" onblur="mFill(this)"><span class="unit">reps</span></div>
+          <div class="inp-wrap"><input type="number" id="${ex.id}_wA${i}" placeholder="${pwA||'—'}" min="0" max="999" step="0.5" inputmode="decimal" oninput="chkPR('${ex.id}');autoSave()" onblur="mFill(this)"><span class="unit">kg</span></div>
+          <div class="inp-wrap"><input type="number" id="${ex.id}_rB${i}" placeholder="${prB||ex.rt[i]||ex.rt[0]}" min="0" max="99" inputmode="numeric" oninput="chkPR('${ex.id}');autoSave()" onblur="mFill(this)"><span class="unit">reps</span></div>
+          <div class="inp-wrap"><input type="number" id="${ex.id}_wB${i}" placeholder="${pwB||'—'}" min="0" max="999" step="0.5" inputmode="decimal" oninput="chkPR('${ex.id}');autoSave()" onblur="mFill(this)"><span class="unit">kg</span></div>
+        </div>`;
+      }
+    }
+    // ── CAS NORMAL : reps / kg
+    else {
+      for (let i=0; i<ex.sets; i++) {
+        const pw = prevEx ? (prevEx.s[i]?.w||'') : '';
+        const pr = prevEx ? (prevEx.s[i]?.r||'') : '';
+        seriesHTML += `<div class="serie-row">
+          <div class="snum">S${i+1}</div>
+          <div class="inp-wrap"><input type="number" id="${ex.id}_r${i}" placeholder="${pr||ex.rt[i]||ex.rt[0]}" min="0" max="99" inputmode="numeric" oninput="chkPR('${ex.id}');autoSave()" onblur="mFill(this)"><span class="unit">reps</span></div>
+          <div class="inp-wrap"><input type="number" id="${ex.id}_w${i}" placeholder="${pw||'—'}" min="0" max="999" step="0.5" inputmode="decimal" oninput="chkPR('${ex.id}');autoSave()" onblur="mFill(this)"><span class="unit">kg</span></div>
+        </div>`;
+      }
+    }
+
+    const prevNote = prevEx?.note ? `<div class="prev-note">↩ ${prevEx.note}</div>` : '';
+    const tag = ex.bilateral ? ' <span style="font-size:10px;color:var(--rest)">[BILATÉRAL]</span>'
+              : ex.supercombo ? ' <span style="font-size:10px;color:var(--rest)">[SUPERCOMBO]</span>'
+              : ex.bi ? ' <span style="font-size:10px;color:var(--rest)">[PAR JAMBE]</span>' : '';
+
     card.innerHTML = `
       <div class="ex-card-hdr">
         <div><div class="ex-name">${ex.name}${tag}</div><div class="ex-target">${ex.sets} séries · ${rLbl} · ⏱ ${ex.rest}</div></div>
         <div class="pr-badge">🏆 PR</div>
       </div>
-      <div class="series-wrap">${sHTML}</div>
+      ${headerExtra}
+      <div class="series-wrap">${seriesHTML}</div>
       ${prevNote}
       <div class="ex-note-wrap"><textarea class="ex-note" id="note_${ex.id}" placeholder="Note (sensation, difficulté...)" oninput="autoSave()"></textarea></div>`;
     c.appendChild(card);
   });
-  // Restore autosave if exists
   restoreAutoSave(t);
 }
 
@@ -424,9 +461,24 @@ function mFill(el) { el.value ? el.classList.add('filled') : el.classList.remove
 function chkPR(exId) {
   const ex = PROG[curSess]?.exercises.find(e => e.id===exId); if (!ex) return;
   let maxVol = 0;
-  allData.filter(s => s.type===curSess && s.ex?.[exId]).forEach(s => { const v=s.ex[exId].s.reduce((a,sr)=>a+(sr.r||0)*(sr.w||0),0); if(v>maxVol) maxVol=v; });
+  allData.filter(s => s.type===curSess && s.ex?.[exId]).forEach(s => {
+    let v = 0;
+    if (ex.bilateral) v = s.ex[exId].s.reduce((a,sr)=>a+(sr.r||0)*((sr.wL||0)+(sr.wR||0)),0);
+    else if (ex.supercombo) v = s.ex[exId].s.reduce((a,sr)=>a+(sr.rA||0)*(sr.wA||0)+(sr.rB||0)*(sr.wB||0),0);
+    else v = s.ex[exId].s.reduce((a,sr)=>a+(sr.r||0)*(sr.w||0),0);
+    if(v>maxVol) maxVol=v;
+  });
   let curVol = 0;
-  for (let i=0; i<ex.sets; i++) curVol += (parseFloat(document.getElementById(exId+'_r'+i)?.value)||0)*(parseFloat(document.getElementById(exId+'_w'+i)?.value)||0);
+  for (let i=0; i<ex.sets; i++) {
+    if (ex.bilateral) {
+      curVol += (parseFloat(document.getElementById(exId+'_r'+i)?.value)||0)*((parseFloat(document.getElementById(exId+'_wL'+i)?.value)||0)+(parseFloat(document.getElementById(exId+'_wR'+i)?.value)||0));
+    } else if (ex.supercombo) {
+      curVol += (parseFloat(document.getElementById(exId+'_rA'+i)?.value)||0)*(parseFloat(document.getElementById(exId+'_wA'+i)?.value)||0);
+      curVol += (parseFloat(document.getElementById(exId+'_rB'+i)?.value)||0)*(parseFloat(document.getElementById(exId+'_wB'+i)?.value)||0);
+    } else {
+      curVol += (parseFloat(document.getElementById(exId+'_r'+i)?.value)||0)*(parseFloat(document.getElementById(exId+'_w'+i)?.value)||0);
+    }
+  }
   const card = document.getElementById('card-'+exId);
   if (card) { curVol>0 && curVol>maxVol ? card.classList.add('has-pr') : card.classList.remove('has-pr'); }
 }
@@ -439,12 +491,28 @@ async function saveSess() {
   PROG[t].exercises.forEach(ex => {
     const series = [];
     for (let i=0; i<ex.sets; i++) {
-      const r=parseFloat(document.getElementById(ex.id+'_r'+i)?.value)||0;
-      const w=parseFloat(document.getElementById(ex.id+'_w'+i)?.value)||0;
-      series.push({r,w}); if(r||w) hasAny=true;
+      if (ex.bilateral) {
+        const r=parseFloat(document.getElementById(ex.id+'_r'+i)?.value)||0;
+        const wL=parseFloat(document.getElementById(ex.id+'_wL'+i)?.value)||0;
+        const wR=parseFloat(document.getElementById(ex.id+'_wR'+i)?.value)||0;
+        series.push({r,wL,wR}); if(r||wL||wR) hasAny=true;
+      } else if (ex.supercombo) {
+        const rA=parseFloat(document.getElementById(ex.id+'_rA'+i)?.value)||0;
+        const wA=parseFloat(document.getElementById(ex.id+'_wA'+i)?.value)||0;
+        const rB=parseFloat(document.getElementById(ex.id+'_rB'+i)?.value)||0;
+        const wB=parseFloat(document.getElementById(ex.id+'_wB'+i)?.value)||0;
+        series.push({rA,wA,rB,wB}); if(rA||wA||rB||wB) hasAny=true;
+      } else {
+        const r=parseFloat(document.getElementById(ex.id+'_r'+i)?.value)||0;
+        const w=parseFloat(document.getElementById(ex.id+'_w'+i)?.value)||0;
+        series.push({r,w}); if(r||w) hasAny=true;
+      }
     }
     const note = document.getElementById('note_'+ex.id)?.value.trim()||'';
-    const vol = series.reduce((a,s)=>a+s.r*s.w,0);
+    let vol;
+    if (ex.bilateral) vol = series.reduce((a,s)=>a+s.r*(s.wL+s.wR),0);
+    else if (ex.supercombo) vol = series.reduce((a,s)=>a+s.rA*s.wA+s.rB*s.wB,0);
+    else vol = series.reduce((a,s)=>a+s.r*s.w,0);
     exData[ex.id] = {s:series,note,vol,isPR:isPRFor(t,ex.id,vol)};
   });
   if (!hasAny) { showToast('Entre au moins quelques données', 'err'); return; }
@@ -547,9 +615,9 @@ function renderStats() {
   const maxWts=sessions.map(s=>Math.max(...s.ex[exId].s.map(sr=>sr.w||0)));
   const col={push:'#e85d3a',pull:'#3a8fe8',legs:'#3ae87a'}[t];
   const labels=sessions.map(s=>{
-    const d = new Date(s.date); 
-    const dd = isNaN(d) ? new Date(String(s.date)) : d;
-    return isNaN(dd) ? s.date : dd.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+    let d = new Date(typeof s.date === 'string' ? s.date + 'T12:00:00' : s.date);
+    if (isNaN(d)) d = new Date(String(s.date));
+    return isNaN(d) ? s.date : d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
   });
   sc.innerHTML=`
     <div class="stat-cards">
@@ -590,7 +658,6 @@ function showToast(msg, type='') {
   setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-/* ══════════ AUTOSAVE ══════════ */
 const AS_KEY = 'ppl_autosave';
 
 function autoSave() {
@@ -599,7 +666,13 @@ function autoSave() {
   PROG[curSess].exercises.forEach(ex => {
     const series = [];
     for (let i=0; i<ex.sets; i++) {
-      series.push({ r: document.getElementById(ex.id+'_r'+i)?.value||'', w: document.getElementById(ex.id+'_w'+i)?.value||'' });
+      if (ex.bilateral) {
+        series.push({ r: document.getElementById(ex.id+'_r'+i)?.value||'', wL: document.getElementById(ex.id+'_wL'+i)?.value||'', wR: document.getElementById(ex.id+'_wR'+i)?.value||'' });
+      } else if (ex.supercombo) {
+        series.push({ rA: document.getElementById(ex.id+'_rA'+i)?.value||'', wA: document.getElementById(ex.id+'_wA'+i)?.value||'', rB: document.getElementById(ex.id+'_rB'+i)?.value||'', wB: document.getElementById(ex.id+'_wB'+i)?.value||'' });
+      } else {
+        series.push({ r: document.getElementById(ex.id+'_r'+i)?.value||'', w: document.getElementById(ex.id+'_w'+i)?.value||'' });
+      }
     }
     draft.exos[ex.id] = { series, note: document.getElementById('note_'+ex.id)?.value||'' };
   });
@@ -615,15 +688,29 @@ function restoreAutoSave(t) {
     PROG[t].exercises.forEach(ex => {
       const d = draft.exos?.[ex.id]; if (!d) return;
       for (let i=0; i<ex.sets; i++) {
-        const ri = document.getElementById(ex.id+'_r'+i);
-        const wi = document.getElementById(ex.id+'_w'+i);
-        if (ri && d.series[i]?.r) { ri.value = d.series[i].r; ri.classList.add('filled'); }
-        if (wi && d.series[i]?.w) { wi.value = d.series[i].w; wi.classList.add('filled'); }
+        const s = d.series[i]; if (!s) continue;
+        if (ex.bilateral) {
+          const ri=document.getElementById(ex.id+'_r'+i), wLi=document.getElementById(ex.id+'_wL'+i), wRi=document.getElementById(ex.id+'_wR'+i);
+          if(ri&&s.r){ri.value=s.r;ri.classList.add('filled');}
+          if(wLi&&s.wL){wLi.value=s.wL;wLi.classList.add('filled');}
+          if(wRi&&s.wR){wRi.value=s.wR;wRi.classList.add('filled');}
+        } else if (ex.supercombo) {
+          const rAi=document.getElementById(ex.id+'_rA'+i), wAi=document.getElementById(ex.id+'_wA'+i);
+          const rBi=document.getElementById(ex.id+'_rB'+i), wBi=document.getElementById(ex.id+'_wB'+i);
+          if(rAi&&s.rA){rAi.value=s.rA;rAi.classList.add('filled');}
+          if(wAi&&s.wA){wAi.value=s.wA;wAi.classList.add('filled');}
+          if(rBi&&s.rB){rBi.value=s.rB;rBi.classList.add('filled');}
+          if(wBi&&s.wB){wBi.value=s.wB;wBi.classList.add('filled');}
+        } else {
+          const ri=document.getElementById(ex.id+'_r'+i), wi=document.getElementById(ex.id+'_w'+i);
+          if(ri&&s.r){ri.value=s.r;ri.classList.add('filled');}
+          if(wi&&s.w){wi.value=s.w;wi.classList.add('filled');}
+        }
       }
       const ni = document.getElementById('note_'+ex.id);
       if (ni && d.note) ni.value = d.note;
     });
-    if (Object.values(draft.exos).some(e => e.series.some(s => s.r||s.w)))
+    if (Object.values(draft.exos).some(e => e.series.some(s => Object.values(s).some(v=>v))))
       showToast('Brouillon restauré ✓', 'ok');
   } catch {}
 }
